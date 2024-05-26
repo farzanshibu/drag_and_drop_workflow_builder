@@ -18,6 +18,8 @@ import {
 import useNodeData from "@/hooks/useNodeData";
 import { ObjectStats, splitEdgeToNodes } from "@/lib/utils";
 import { useNodeDataStore } from "@/store/node-data";
+import { useTableDataStore } from "@/store/table";
+import { Sheet } from "lucide-react";
 import { useState } from "react";
 import { Position } from "reactflow";
 import { toast } from "sonner";
@@ -35,6 +37,8 @@ export function TransformRenameNode({
   const edgeNodes = splitEdgeToNodes(data.edgesIDs, id);
   const sourceId = edgeNodes?.sourceId || "";
   const { lastNodeDataTarget, handleRemoveBlock } = useNodeData(id, sourceId);
+  const setTableData = useTableDataStore((state) => state.setTableData);
+
   const { getSingleData, setNodeData } = useNodeDataStore((state) => ({
     getSingleData: state.getSingleData,
     setNodeData: state.setNodeData,
@@ -82,6 +86,14 @@ export function TransformRenameNode({
   return (
     <>
       <Card>
+        <Button
+          onClick={() => {
+            setTableData(getSingleData(id)?.data_target);
+          }}
+          className="lg:hidden text-cyan-400 bg-cyan-500/20 border border-cyan-500 hover:bg-cyan-700 hover:text-white"
+        >
+          <Sheet size={13} />
+        </Button>
         <CardHeader>
           <CardTitle className="text-center tracking-wide">
             Rename Columns
@@ -152,6 +164,7 @@ export function TransformFilterNode({
 }) {
   const edgeNodes = splitEdgeToNodes(data.edgesIDs, id);
   const sourceId = edgeNodes?.sourceId || "";
+  const setTableData = useTableDataStore((state) => state.setTableData);
   const { lastNodeDataTarget, handleRemoveBlock } = useNodeData(id, sourceId);
   const { getSingleData, setNodeData } = useNodeDataStore((state) => ({
     getSingleData: state.getSingleData,
@@ -216,6 +229,14 @@ export function TransformFilterNode({
   return (
     <>
       <Card>
+        <Button
+          onClick={() => {
+            setTableData(getSingleData(id)?.data_target);
+          }}
+          className="lg:hidden text-cyan-400 bg-cyan-500/20 border border-cyan-500 hover:bg-cyan-700 hover:text-white"
+        >
+          <Sheet size={13} />
+        </Button>
         <CardHeader>
           <CardTitle className="text-center tracking-wide">Filter</CardTitle>
         </CardHeader>
@@ -304,6 +325,7 @@ export function TransformGroupNode({
   const edgeNodes = splitEdgeToNodes(data.edgesIDs, id);
   const sourceId = edgeNodes?.sourceId || "";
   const { lastNodeDataTarget, handleRemoveBlock } = useNodeData(id, sourceId);
+  const setTableData = useTableDataStore((state) => state.setTableData);
   const { getSingleData, setNodeData } = useNodeDataStore((state) => ({
     getSingleData: state.getSingleData,
     setNodeData: state.setNodeData,
@@ -350,6 +372,14 @@ export function TransformGroupNode({
   return (
     <>
       <Card>
+        <Button
+          onClick={() => {
+            setTableData(getSingleData(id)?.data_target);
+          }}
+          className="lg:hidden text-cyan-400 bg-cyan-500/20 border border-cyan-500 hover:bg-cyan-700 hover:text-white"
+        >
+          <Sheet size={13} />
+        </Button>
         <CardHeader>
           <CardTitle className="text-center tracking-wide">Group</CardTitle>
         </CardHeader>
@@ -402,7 +432,7 @@ export function TransformMergeNode({
   const sourceIdB = edgeNodes?.sourceIdB || "";
   const { lastNodeDataTarget, lastNodeDataTargetB, handleRemoveBlock } =
     useNodeData(id, sourceId, sourceIdB);
-
+  const setTableData = useTableDataStore((state) => state.setTableData);
   const { getSingleData, setNodeData } = useNodeDataStore((state) => ({
     getSingleData: state.getSingleData,
     setNodeData: state.setNodeData,
@@ -443,6 +473,14 @@ export function TransformMergeNode({
   return (
     <>
       <Card>
+        <Button
+          onClick={() => {
+            setTableData(getSingleData(id)?.data_target);
+          }}
+          className="lg:hidden text-cyan-400 bg-cyan-500/20 border border-cyan-500 hover:bg-cyan-700 hover:text-white"
+        >
+          <Sheet size={13} />
+        </Button>
         <CardHeader>
           <CardTitle className="text-center tracking-wide">Merge</CardTitle>
         </CardHeader>
@@ -534,6 +572,7 @@ export function TransformSliceNode({
   const edgeNodes = splitEdgeToNodes(data.edgesIDs, id);
   const sourceId = edgeNodes?.sourceId || "";
   const { lastNodeDataTarget, handleRemoveBlock } = useNodeData(id, sourceId);
+  const setTableData = useTableDataStore((state) => state.setTableData);
   const { getSingleData, setNodeData } = useNodeDataStore((state) => ({
     getSingleData: state.getSingleData,
     setNodeData: state.setNodeData,
@@ -548,11 +587,11 @@ export function TransformSliceNode({
       return;
     }
 
-    if (start < end) {
+    if (start > end) {
       toast.error("Start index should be less than end index");
       return;
     }
-    if (start > 0 || end > 0) {
+    if (start < 0 || end < 0) {
       toast.error("Start and end index should be positive");
       return;
     }
@@ -575,6 +614,14 @@ export function TransformSliceNode({
   return (
     <>
       <Card>
+        <Button
+          onClick={() => {
+            setTableData(getSingleData(id)?.data_target);
+          }}
+          className="lg:hidden text-cyan-400 bg-cyan-500/20 border border-cyan-500 hover:bg-cyan-700 hover:text-white"
+        >
+          <Sheet size={13} />
+        </Button>
         <CardHeader>
           <CardTitle className="text-center tracking-wide">Slice</CardTitle>
         </CardHeader>
@@ -630,6 +677,7 @@ export function TransformSortNode({
   const edgeNodes = splitEdgeToNodes(data.edgesIDs, id);
   const sourceId = edgeNodes?.sourceId || "";
   const { lastNodeDataTarget, handleRemoveBlock } = useNodeData(id, sourceId);
+  const setTableData = useTableDataStore((state) => state.setTableData);
   const { getSingleData, setNodeData } = useNodeDataStore((state) => ({
     getSingleData: state.getSingleData,
     setNodeData: state.setNodeData,
@@ -677,6 +725,14 @@ export function TransformSortNode({
   return (
     <>
       <Card>
+        <Button
+          onClick={() => {
+            setTableData(getSingleData(id)?.data_target);
+          }}
+          className="lg:hidden text-cyan-400 bg-cyan-500/20 border border-cyan-500 hover:bg-cyan-700 hover:text-white"
+        >
+          <Sheet size={13} />
+        </Button>
         <CardHeader>
           <CardTitle className="text-center tracking-wide">Sort</CardTitle>
         </CardHeader>

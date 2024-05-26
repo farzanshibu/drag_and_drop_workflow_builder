@@ -16,7 +16,8 @@ import {
 } from "@/components/ui/select";
 import useNodeData from "@/hooks/useNodeData";
 import { ObjectStats } from "@/lib/utils";
-import { X } from "lucide-react";
+import { useTableDataStore } from "@/store/table";
+import { Sheet, X } from "lucide-react";
 import Papa from "papaparse";
 import { useRef, useState, type ChangeEventHandler } from "react";
 import { Position } from "reactflow";
@@ -27,6 +28,7 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 
 export function InputFileNode({ id }: { id: string }) {
+  const setTableData = useTableDataStore((state) => state.setTableData);
   const { getSingleData, setNodeData } = useNodeDataStore((state) => ({
     getSingleData: state.getSingleData,
     setNodeData: state.setNodeData,
@@ -82,6 +84,14 @@ export function InputFileNode({ id }: { id: string }) {
 
   return (
     <Card>
+      <Button
+        onClick={() => {
+          setTableData(getSingleData(id)?.data_target);
+        }}
+        className="lg:hidden text-cyan-400 bg-cyan-500/20 border border-cyan-500 hover:bg-cyan-700 hover:text-white"
+      >
+        <Sheet size={13} />
+      </Button>
       <CardHeader>
         <CardTitle className="text-center tracking-wide">File</CardTitle>
       </CardHeader>
@@ -122,6 +132,7 @@ export function InputFileNode({ id }: { id: string }) {
 }
 
 export function InputExampleNode({ id }: { id: string }) {
+  const setTableData = useTableDataStore((state) => state.setTableData);
   const { getSingleData, setNodeData } = useNodeDataStore((state) => ({
     getSingleData: state.getSingleData,
     setNodeData: state.setNodeData,
@@ -162,6 +173,14 @@ export function InputExampleNode({ id }: { id: string }) {
   return (
     <>
       <Card>
+        <Button
+          onClick={() => {
+            setTableData(getSingleData(id)?.data_target);
+          }}
+          className="lg:hidden text-cyan-400 bg-cyan-500/20 border border-cyan-500 hover:bg-cyan-700 hover:text-white"
+        >
+          <Sheet size={13} />
+        </Button>
         <CardHeader>
           <CardTitle className="text-center tracking-wide">
             Example Data

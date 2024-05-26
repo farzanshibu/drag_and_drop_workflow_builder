@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useWorkflowStore } from "@/store/workflows";
+import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -27,7 +28,8 @@ export default function DeleteWorkFlowButton({ workflowId }: Props) {
     <AlertDialog>
       <AlertDialogTrigger asChild>
         <Button className="text-red-400 bg-red-500/20 border border-red-500 hover:bg-red-700 hover:text-white">
-          Delete
+          <Trash2 size={16} />
+          <span className="ml-3">Delete</span>
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>

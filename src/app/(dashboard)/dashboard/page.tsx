@@ -6,9 +6,9 @@ import ListWorkFlow from "./_components/list-workflow";
 
 export default function Dashboard() {
   return (
-    <div className="px-16 flex flex-col gap-2 relative p-5 rounded-tl-3xl h-screen ">
+    <div className="lg:px-16 flex flex-col gap-2 relative p-5 rounded-tl-3xl h-screen ">
       <div className="flex justify-between">
-        <div className="">
+        <div>
           <h1 className="text-3xl mb-2">DashBoard</h1>
           <p className="text-sm text-slate-400">
             Welcome to the WorkFlow Builder Dashboard

@@ -144,9 +144,7 @@ export default function ReactFlowContainer({
       edges={edges}
       edgeTypes={edgeTypes}
       onNodesChange={onNodesChange}
-      onNodeClick={(event, node) => {
-        console.log(node);
-      }}
+      className="touchdevice-flow"
       onNodeDoubleClick={(event, node) => {
         setTableData(getSingleData(node.id)?.data_target);
       }}

@@ -239,7 +239,7 @@ export function MiscStatNode({ data, id }: { data: Datatype; id: string }) {
     });
     setNodeData({
       id,
-      data_target: lastNodeDataTarget,
+      data_target: statData,
       data_source: lastNodeDataTarget,
     });
     toast.success("Stat data generated successfully");

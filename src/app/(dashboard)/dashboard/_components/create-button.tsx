@@ -8,6 +8,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Plus } from "lucide-react";
 import { useState } from "react";
 import CreateForm from "./create-form";
 
@@ -19,7 +20,8 @@ export default function CreateNewWorkFlowButton({}: Props) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="text-sky-400 bg-sky-500/20 border border-sky-500 hover:bg-sky-700 hover:text-white">
-          Create New WorkFlow
+          <Plus className="h-5 w-5" />
+          <span className="hidden lg:block lg:ml-2">Create New WorkFlow</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">

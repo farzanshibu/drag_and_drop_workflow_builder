@@ -53,7 +53,7 @@ export default function CreateForm({ onOpenChange }: Props) {
           )}
         />
 
-        <DialogFooter className="sm:justify-start lg:justify-between">
+        <DialogFooter className="gap-4 sm:justify-start lg:justify-between">
           <DialogClose asChild>
             <Button type="button" variant="secondary">
               Close

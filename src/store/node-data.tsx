@@ -43,4 +43,3 @@ export const useNodeDataStore = create<Storetype>()(
     }))
   )
 );
-mountStoreDevtool("Node Data Store", useNodeDataStore);

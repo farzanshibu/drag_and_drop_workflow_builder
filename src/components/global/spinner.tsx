@@ -1,10 +1,10 @@
 "use client";
-import React, {FC} from "react";
 import { motion } from "framer-motion";
+import { FC } from "react";
 
 const Spinner: FC = () => {
   return (
-    <div className="flex justify-center items-center">
+    <div className="flex justify-center items-center h-screen w-screen ">
       <motion.div
         className="spinner"
         animate={{ rotate: 360 }}

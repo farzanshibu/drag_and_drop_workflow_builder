@@ -19,7 +19,7 @@ export default function MenuToolBar({}: Props) {
     setViewport({ x: 0, y: 0, zoom: 1 }, { duration: 800 });
   }, [setViewport]);
   return (
-    <Menubar>
+    <Menubar className="hidden lg:flex">
       <MenubarMenu>
         <MenubarTrigger>View</MenubarTrigger>
         <MenubarContent>

@@ -11,22 +11,23 @@ export default function ListWorkFlow({}: Props) {
   return (
     <>
       {getWorkFlow.length === 0 ? (
-        <div className="w-full h-screen flex justify-end items-center">
+        <div className="w-screen h-screen flex justify-center items-center">
           <p className="text-slate-400">No WorkFlow Found</p>
         </div>
-      ) : null}
-      <div className="w-full xl:w-5/6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 justify-center">
-        {getWorkFlow.length !== 0
-          ? getWorkFlow.map((workflow) => (
-              <WorkFlowCard
-                key={workflow.id}
-                lastUpdated={workflow.last_updated}
-                workflowId={workflow.id}
-                workflowName={workflow.name}
-              />
-            ))
-          : null}
-      </div>
+      ) : (
+        <div className="w-full xl:w-5/6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 justify-center">
+          {getWorkFlow.length !== 0
+            ? getWorkFlow.map((workflow) => (
+                <WorkFlowCard
+                  key={workflow.id}
+                  lastUpdated={workflow.last_updated}
+                  workflowId={workflow.id}
+                  workflowName={workflow.name}
+                />
+              ))
+            : null}
+        </div>
+      )}
     </>
   );
 }
