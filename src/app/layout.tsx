@@ -1,3 +1,5 @@
+import { Toaster } from "@/components/ui/sonner";
+import WorkFlowProvider from "@/provider/reactflow-provider";
 import { ThemeProvider } from "@/provider/theme-provider";
 import "@/styles/globals.css";
 import type { Metadata } from "next";
@@ -18,14 +20,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={poppins.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
+        <WorkFlowProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+            <Toaster position="top-center" richColors />
+          </ThemeProvider>
+        </WorkFlowProvider>
       </body>
     </html>
   );

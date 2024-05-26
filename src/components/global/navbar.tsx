@@ -10,7 +10,7 @@ const Navbar = async (props: Props) => {
   return (
     <header className="fixed top-0 left-0 right-0 z-10  py-4 px-4 flex items-center bg-transparent justify-between">
       <aside className="flex items-center gap-[2px]">
-        <p className="text-3xl font-bold">WorkFlow Builder</p>
+        <p className="text-3xl font-bold text-slate-50">WorkFlow Builder</p>
       </aside>
 
       <aside className="flex items-center gap-4">
