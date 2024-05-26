@@ -1,6 +1,5 @@
 "use client";
 
-import DeleteWorkFlowButton from "@/components/global/delete-workflow-button";
 import { Button } from "@/components/ui/button";
 import {
   ResizableHandle,
@@ -76,7 +75,8 @@ export default function Editor({ params }: { params: { editorId: string } }) {
           >
             Save
           </Button>
-          <DeleteWorkFlowButton workflowId={workFlow?.id} />
+          {/* TODO: Client error on deleting */}
+          {/* <DeleteWorkFlowButton workflowId={workFlow?.id} /> */}
 
           {/*  TODO: User Profile Dropdown */}
         </div>
@@ -86,7 +86,10 @@ export default function Editor({ params }: { params: { editorId: string } }) {
         className="mt-3 max-w-full rounded-lg border select-none"
       >
         <ResizablePanel defaultSize={65}>
-          <ReactFlowContainer initialNodes={workFlow.nodes} initialEdges={workFlow.edges} />
+          <ReactFlowContainer
+            initialNodes={workFlow.nodes}
+            initialEdges={workFlow.edges}
+          />
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel defaultSize={35}>
