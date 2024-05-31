@@ -10,7 +10,9 @@ import { useNodeDataStore } from "@/store/node-data";
 import { useWorkflowStore } from "@/store/workflows";
 import { ChevronLeft, ChevronRight, Save } from "lucide-react";
 import { redirect, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { useEdges, useNodes } from "reactflow";
+import { toast } from "sonner";
 import LogsContainer from "./_components/logs";
 import MenuToolBar from "./_components/menu-toolbar";
 import NameEditorInput from "./_components/name-editor-input";
@@ -35,9 +37,11 @@ export default function Editor({ params }: { params: { editorId: string } }) {
   const edges = useEdges();
   const getNodesData = useNodeDataStore((state) => state.getNodesData);
   const setNodesData = useNodeDataStore((state) => state.setNodesData);
-  if (workFlow.nodeDataArr.length > 0) {
-    setNodesData(workFlow.nodeDataArr);
-  }
+  useEffect(() => {
+    if (workFlow.nodeDataArr.length > 0) {
+      setNodesData(workFlow.nodeDataArr);
+    }
+  }, [workFlow.nodeDataArr, setNodesData]);
 
   return (
     <div className="lg:px-16 flex flex-col gap-2 relative p-5 rounded-tl-3xl h-screen ">
@@ -76,6 +80,7 @@ export default function Editor({ params }: { params: { editorId: string } }) {
                 edges,
                 nodeDataArr: getNodesData(),
               });
+              toast.success("Saved Successfully");
             }}
             className="text-green-400 bg-green-500/20 border border-green-500 hover:bg-green-700 hover:text-white"
           >
@@ -103,7 +108,7 @@ export default function Editor({ params }: { params: { editorId: string } }) {
               <OutputContainer />
             </ResizablePanel>
             <ResizableHandle />
-            <ResizablePanel defaultSize={25} className="hidden lg:block">
+            <ResizablePanel defaultSize={25} className="hidden">
               <LogsContainer />
             </ResizablePanel>
           </ResizablePanelGroup>

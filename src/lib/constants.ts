@@ -17,9 +17,11 @@ export const NodesTypes = [
     },
     {
         id: 3, type: 'VISUALIZATION', elements: [
-            { id: 9, name: 'Baschart', description: 'Display a bar char of given x and y columns name', input: 'Dataset', output: 'Dataset', type: "visualization-barchart", data: {} },
-            { id: 10, name: 'Histogram', description: 'Display a histogram of a given column name', input: 'Dataset', output: 'Dataset', type: "visualization-histogram", data: {} },
-            { id: 11, name: 'Scatterplot', description: 'Display a scatterplot of given x and y column names', input: 'Dataset', output: 'Dataset', type: "visualization-scatterplot", data: {} },
+            { id: 9, name: 'Baschart', description: 'Display a bar chart of given x and y columns name', input: 'Dataset', output: null, type: "visualization-barchart", data: {} },
+            {
+                id: 10, name: 'Linechart', description: 'Display a line Chart of a given column name', input: 'Dataset', output: null, type: "visualization-histogram", data: {}
+            },
+            { id: 11, name: 'Scatterplot', description: 'Display a scatterplot of given x and y column names', input: 'Dataset', output: null, type: "visualization-scatterplot", data: {} },
         ],
     },
     {

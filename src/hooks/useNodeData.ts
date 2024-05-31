@@ -4,13 +4,19 @@ import { useReactFlow } from 'reactflow';
 
 const useNodeData = (currentNodeId: string, sourceNodeID?: string, sourceNodeIDB?: string) => {
     const { setNodes } = useReactFlow();
-    const getSingleData = useNodeDataStore((state) => state.getSingleData);
+    const { removeNodeData, getSingleData } = useNodeDataStore((state) => (
+        {
+            removeNodeData: state.removeNodeData,
+            getSingleData: state.getSingleData,
+        }
+    ));
 
 
     return useMemo(() => {
         const handleRemoveBlock = () => {
             setNodes((nodes) => nodes.filter((n) => n.id !== currentNodeId));
-            //TODO: Remove the node data from the store
+            removeNodeData(currentNodeId);
+
         };
         let lastNodeDataSource = [];
         let lastNodeDataSourceB = [];
@@ -35,7 +41,7 @@ const useNodeData = (currentNodeId: string, sourceNodeID?: string, sourceNodeIDB
             lastNodeDataTargetB,
             handleRemoveBlock,
         };
-    }, [currentNodeId, sourceNodeID, sourceNodeIDB, getSingleData, setNodes]);
+    }, [currentNodeId, sourceNodeID, sourceNodeIDB, getSingleData, setNodes, removeNodeData]);
 };
 
 export default useNodeData;

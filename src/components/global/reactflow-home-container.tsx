@@ -97,20 +97,20 @@ export default function ReactFlowHomeContainer({}: Props) {
 function SelectorNode({ data }: { data: { label: string } }) {
   return (
     <>
-      <CustomHandle type="target" position={Position.Left} />
+      <CustomHandle type="target" position={Position.Left} maxConnection={1} />
       <span className="font-semibold inline-flex h-12 animate-shimmer items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 text-slate-400 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
         {data.label}
       </span>
-      <CustomHandle type="source" position={Position.Right} />
+      <CustomHandle type="source" position={Position.Right} maxConnection={1} />
     </>
   );
 }
 function FixedNode({ data }: { data: { label: string } }) {
   return (
     <>
-      <CustomHandle type="target" position={Position.Left} />
+      <CustomHandle type="target" position={Position.Left} maxConnection={1} />
       <h1 className="text-5xl font-bold text-slate-50">{data.label}</h1>
-      <CustomHandle type="source" position={Position.Right} />
+      <CustomHandle type="source" position={Position.Right} maxConnection={1} />
     </>
   );
 }

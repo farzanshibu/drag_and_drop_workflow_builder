@@ -1,3 +1,4 @@
+import { produce } from "immer";
 import type { Edge, Node } from "reactflow";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
@@ -75,16 +76,22 @@ export const useWorkflowStore = create<Storetype>()(
           }
         }),
       getWorkFlow: () => get().workFlow,
-      onSaved: (id: string, data) =>
-        set((state) => {
-          const index = state.workFlow.findIndex((flow) => flow.id === id);
-          if (index !== -1) {
-            state.workFlow[index].last_updated = new Date().toISOString();
-            state.workFlow[index].nodes = data.nodes;
-            state.workFlow[index].edges = data.edges;
-            state.workFlow[index].nodeDataArr = data.nodeDataArr;
-          }
-        }),
-    }))
+      onSaved: (id, data) =>
+        set(
+          produce((state: Storetype) => {
+            const index = state.workFlow.findIndex((flow) => flow.id === id);
+            if (index !== -1) {
+              state.workFlow[index].last_updated = new Date().toISOString();
+              state.workFlow[index].nodes = data.nodes;
+              state.workFlow[index].edges = data.edges;
+              state.workFlow[index].nodeDataArr = data.nodeDataArr;
+            }
+          })
+        ),
+    })),
+    {
+      enabled: true,
+      name: "workflow",
+    }
   )
 );
