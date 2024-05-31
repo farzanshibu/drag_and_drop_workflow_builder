@@ -142,8 +142,8 @@ export default function ReactFlowContainer({
     const selectedNode = nodes.find((node) => node.selected);
     if (
       selectedNode &&
-      selectedNode.type?.startsWith("input") &&
-      selectedNode.type?.startsWith("transform")
+      (selectedNode.type?.includes("input") ||
+        selectedNode.type?.includes("transform"))
     ) {
       setTableData(getSingleData(selectedNode.id)?.data_target);
     }
