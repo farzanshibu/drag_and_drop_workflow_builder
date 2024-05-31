@@ -3,6 +3,7 @@ import { Separator } from "@/components/ui/separator";
 import { NodesTypes } from "@/lib/constants";
 import { useState } from "react";
 import { useReactFlow } from "reactflow";
+import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
 
 type AddBlockProps = {
@@ -20,7 +21,7 @@ export default function NodesElement() {
   const [search, setSearch] = useState("");
 
   const handleAddBlock = (element: AddBlockProps) => () => {
-    console.log("Add block");
+    toast.success("Block Added");
     setNodes((nodes) => [
       ...nodes,
       {

@@ -22,7 +22,6 @@ export default function OutputContainer() {
   }, [tableData]);
 
   if (tableData === undefined) return null;
-  if (tableData.length === 0) return null;
 
   return (
     <div className="flex flex-col h-full">
@@ -51,14 +50,13 @@ export default function OutputContainer() {
                       : null}
                   </TableCell>
                 ))}
-                 {" "}
               </TableRow>
             ))}
           </TableBody>
         </Table>
       ) : (
         <div className="flex items-center justify-center h-full text-gray-500">
-          No data available
+          No data available ( Click on nodes to Get information )
         </div>
       )}
     </div>
