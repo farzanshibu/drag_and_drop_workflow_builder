@@ -16,18 +16,19 @@ import {
   TransformSortNode,
 } from "@/components/nodes/transformer-node";
 import {
-  VisualizationBarchartNode,
-  VisualizationHistogramNode,
+  VisualizationBarChartNode,
+  VisualizationLineChartNode,
   VisualizationScatterplotNode,
 } from "@/components/nodes/visualization-node";
 import { useNodeDataStore } from "@/store/node-data";
 import { useTableDataStore } from "@/store/table";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import ReactFlow, {
   Background,
   Controls,
   MiniMap,
   Panel,
+  SelectionMode,
   addEdge,
   useEdgesState,
   useNodesState,
@@ -64,8 +65,8 @@ export default function ReactFlowContainer({
       "transform-slice": TransformSliceNode,
       "transform-rename": TransformRenameNode,
       "transform-sort": TransformSortNode,
-      "visualization-barchart": VisualizationBarchartNode,
-      "visualization-histogram": VisualizationHistogramNode,
+      "visualization-barchart": VisualizationBarChartNode,
+      "visualization-histogram": VisualizationLineChartNode,
       "visualization-scatterplot": VisualizationScatterplotNode,
       "misc-markdown": MiscMarkdownNode,
       "misc-export": MiscExportNode,
@@ -134,8 +135,19 @@ export default function ReactFlowContainer({
         );
       }
     },
-    [getNode, setEdges, setNodes]
+    [getNode, setEdges, setNodes, getSingleData]
   );
+  const nodeDataArr = useNodeDataStore((state) => state.nodeDataArr);
+  useEffect(() => {
+    const selectedNode = nodes.find((node) => node.selected);
+    if (
+      selectedNode &&
+      selectedNode.type?.startsWith("input") &&
+      selectedNode.type?.startsWith("transform")
+    ) {
+      setTableData(getSingleData(selectedNode.id)?.data_target);
+    }
+  }, [nodes, setTableData, getSingleData, nodeDataArr]);
 
   return (
     <ReactFlow
@@ -144,10 +156,7 @@ export default function ReactFlowContainer({
       edges={edges}
       edgeTypes={edgeTypes}
       onNodesChange={onNodesChange}
-      className="touchdevice-flow"
-      onNodeDoubleClick={(event, node) => {
-        setTableData(getSingleData(node.id)?.data_target);
-      }}
+      selectionMode={SelectionMode.Partial}
       onEdgesChange={onEdgesChange}
       onConnect={onConnect}
     >
@@ -166,6 +175,7 @@ export default function ReactFlowContainer({
       />
 
       <Background />
+
       <Panel position="top-left">
         <AddBlockButton />
         <CommandDialogBlock />

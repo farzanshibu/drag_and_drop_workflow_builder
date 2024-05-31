@@ -16,26 +16,37 @@ import {
 import useNodeData from "@/hooks/useNodeData";
 import { splitEdgeToNodes } from "@/lib/utils";
 import { useNodeDataStore } from "@/store/node-data";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Markdown from "react-markdown";
-import { Position, useReactFlow } from "reactflow";
+import { Position } from "reactflow";
 import { toast } from "sonner";
 import CustomHandle from "../global/custom-handle";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 
-export function MiscMarkdownNode({ id }: { id: string }) {
-  const [show, setShow] = useState(false);
-  const [data, setData] = useState<string>("**Hello world!!!**");
-  const { setNodes } = useReactFlow();
+interface statData {
+  sum: number;
+  mean: number;
+  min: number;
+  max: number;
+  median: number;
+  mode: number;
+  variance: number;
+  stdDev: number;
+}
 
-  const handleRemoveBlock = () => {
-    setNodes((nodes) => nodes.filter((n) => n.id !== id));
-  };
+export function MiscMarkdownNode({ id }: { id: string }) {
+  const { handleRemoveBlock } = useNodeData(id);
+  const { getSingleData, setNodeData } = useNodeDataStore((state) => ({
+    getSingleData: state.getSingleData,
+    setNodeData: state.setNodeData,
+  }));
+  const markupData = getSingleData(id)?.data_source;
+  const markupShow = getSingleData(id)?.field?.micsMarkupShow ?? true;
 
   return (
     <>
-      {show ? (
+      {markupShow ? (
         <Card>
           <CardHeader>
             <CardTitle className="text-center tracking-wide">
@@ -46,13 +57,26 @@ export function MiscMarkdownNode({ id }: { id: string }) {
             <Textarea
               placeholder="Type your markdown here."
               className="w-80 h-56"
-              value={data}
-              onChange={(e) => setData(e.target.value)}
+              value={typeof markupData === "string" ? markupData : ""}
+              onChange={(e) => {
+                setNodeData({
+                  id,
+                  data_source: e.target.value,
+                  data_target: {},
+                });
+              }}
             />
           </CardContent>
           <CardFooter className="flex gap-3  w-full">
             <Button
-              onClick={() => setShow(!show)}
+              onClick={() =>
+                setNodeData({
+                  id,
+                  data_target: {},
+                  data_source: markupData,
+                  field: { micsMarkupShow: !markupShow },
+                })
+              }
               className="w-full text-sky-400 bg-sky-500/20 border border-sky-500 hover:bg-sky-700 hover:text-white"
             >
               Hide
@@ -68,13 +92,22 @@ export function MiscMarkdownNode({ id }: { id: string }) {
       ) : (
         <div className="group">
           <Button
-            onClick={() => setShow(!show)}
+            onClick={() =>
+              setNodeData({
+                id,
+                data_target: {},
+                data_source: markupData,
+                field: { micsMarkupShow: !markupShow },
+              })
+            }
             className=" text-slate-400 bg-slate-500/20 border border-slate-500 hover:bg-slate-700 hover:text-white opacity-0 hover:opacity-50 group group-hover:opacity-25 mb-3"
           >
             Show
           </Button>
 
-          <Markdown>{data}</Markdown>
+          <Markdown>
+            {typeof markupData === "string" ? markupData : ""}
+          </Markdown>
         </div>
       )}
     </>
@@ -159,21 +192,9 @@ export function MiscExportNode({ data, id }: { data: Datatype; id: string }) {
           </Button>
         </CardFooter>
       </Card>
-      <CustomHandle type="target" position={Position.Left} />
+      <CustomHandle type="target" position={Position.Left} maxConnection={1} />
     </>
   );
-}
-
-interface statData {
-  sum: number;
-  mean: number;
-  min: number;
-  max: number;
-  median: number;
-  mode: string;
-  modeCount: any;
-  variance: number;
-  stdDev: number;
 }
 
 export function MiscStatNode({ data, id }: { data: Datatype; id: string }) {
@@ -184,71 +205,93 @@ export function MiscStatNode({ data, id }: { data: Datatype; id: string }) {
     getSingleData: state.getSingleData,
     setNodeData: state.setNodeData,
   }));
-  const [selectedColumn, setSelectedColumn] = useState("");
+
+  const [selectedColumn, setSelectedColumn] = useState<string | undefined>();
   const [statData, setStatData] = useState<statData | undefined>();
 
-  const handleStat = () => {
-    if (!selectedColumn) {
-      toast.error("Please select a column");
-      return;
-    }
+  const handleStat = useCallback(
+    (selectedColumn: string) => {
+      if (!selectedColumn) {
+        toast.error("Please select a column");
+        return;
+      }
 
-    const data = [...lastNodeDataTarget];
-    const columnData = data
-      .map((d) => d[selectedColumn])
-      .filter((val) => typeof val === "number");
+      const data = [...lastNodeDataTarget];
 
-    if (columnData.length === 0) {
-      toast.error("Selected column does not contain numeric data");
-      return;
-    }
+      const columnData = data
+        .map((d) => d[selectedColumn])
+        .filter((val) => typeof val === "number");
 
-    const sum: number = columnData.reduce((a, b) => a + b, 0);
-    const mean = sum / columnData.length;
-    const min = Math.min(...columnData);
-    const max = Math.max(...columnData);
-    const sortedData = [...columnData].sort((a, b) => a - b);
-    const median: number =
-      sortedData.length % 2 === 0
-        ? (sortedData[sortedData.length / 2 - 1] +
-            sortedData[sortedData.length / 2]) /
-          2
-        : sortedData[(sortedData.length - 1) / 2];
-    const mode = columnData.reduce((acc, val) => {
-      acc[val] = acc[val] ? acc[val] + 1 : 1;
-      return acc;
-    }, {} as Record<number, number>);
-    const modeValue = Object.keys(mode).reduce((a, b) =>
-      mode[a] > mode[b] ? a : b
-    );
-    const modeCount = mode[modeValue];
-    const variance =
-      columnData.reduce((acc, val) => acc + (val - mean) ** 2, 0) /
-      columnData.length;
-    const stdDev = Math.sqrt(variance);
-    setStatData({
-      sum,
-      mean,
-      min,
-      max,
-      median,
-      mode: modeValue,
-      modeCount,
-      variance,
-      stdDev,
-    });
-    setNodeData({
-      id,
-      data_target: statData,
-      data_source: lastNodeDataTarget,
-    });
-    toast.success("Stat data generated successfully");
-  };
+      if (columnData.length === 0) {
+        toast.error("Selected column does not contain numeric data");
+        return;
+      }
+
+      const sum = columnData.reduce((a, b) => a + b, 0);
+      const mean = sum / columnData.length;
+      const min = Math.min(...columnData);
+      const max = Math.max(...columnData);
+      const sortedData = [...columnData].sort((a, b) => a - b);
+      const median =
+        sortedData.length % 2 === 0
+          ? (sortedData[sortedData.length / 2 - 1] +
+              sortedData[sortedData.length / 2]) /
+            2
+          : sortedData[(sortedData.length - 1) / 2];
+      const mode = columnData.reduce((acc, val) => {
+        acc[val] = acc[val] ? acc[val] + 1 : 1;
+        return acc;
+      }, {} as Record<number, number>);
+      const modeValue = parseInt(
+        Object.keys(mode).reduce((a, b) => (mode[a] > mode[b] ? a : b))
+      );
+      const modeCount = mode[modeValue];
+      const variance =
+        columnData.reduce((acc, val) => acc + (val - mean) ** 2, 0) /
+        columnData.length;
+      const stdDev = Math.sqrt(variance);
+
+      const newStatData: statData = {
+        sum,
+        mean,
+        min,
+        max,
+        median,
+        mode: modeValue,
+        variance,
+        stdDev,
+      };
+
+      setNodeData({
+        id,
+        data_target: newStatData,
+        data_source: lastNodeDataTarget,
+        field: {
+          miscSelectedColumn: selectedColumn,
+        },
+      });
+      setStatData(newStatData);
+      toast.success("Stat data generated successfully");
+    },
+    [lastNodeDataTarget, setNodeData, id]
+  );
   useEffect(() => {
-    if (selectedColumn && lastNodeDataTarget) {
-      handleStat();
+    const singleData = getSingleData(id)?.field;
+    const initialStatData = getSingleData(id)?.data_target;
+    const initialColumnName = singleData?.miscSelectedColumn;
+
+    setSelectedColumn(initialColumnName);
+    setStatData(initialStatData);
+
+    if (selectedColumn) {
+      handleStat(selectedColumn);
     }
-  }, [selectedColumn, lastNodeDataTarget]);
+  }, [id, getSingleData, selectedColumn, handleStat]);
+  useEffect(() => {
+    if (selectedColumn) {
+      handleStat(selectedColumn);
+    }
+  }, [selectedColumn, handleStat]);
 
   return (
     <>
@@ -258,12 +301,13 @@ export function MiscStatNode({ data, id }: { data: Datatype; id: string }) {
         </CardHeader>
         {data.isConnected ? (
           <CardContent>
-            <div className="text-center pb-2">Download Data</div>
+            <div className="text-center pb-2">Stat Data</div>
             <div className="flex flex-col gap-3 p-2 rounded-lg">
               <Select
                 value={selectedColumn}
                 onValueChange={(e) => {
                   setSelectedColumn(e);
+                  handleStat(e);
                 }}
               >
                 <SelectTrigger className="w-96 mb-3">
@@ -297,8 +341,6 @@ export function MiscStatNode({ data, id }: { data: Datatype; id: string }) {
                   </span>
                   <p>Mode: </p>
                   <span className="font-medium">{statData.mode}</span>
-                  <p>Count: </p>
-                  <span className="font-medium">{statData.modeCount}</span>
                   <p>Variance: </p>
                   <span className="font-medium">
                     {statData.variance.toFixed(2)}
@@ -325,7 +367,9 @@ export function MiscStatNode({ data, id }: { data: Datatype; id: string }) {
           </Button>
         </CardFooter>
       </Card>
-      <CustomHandle type="target" position={Position.Left} />
+      <CustomHandle type="target" position={Position.Left} maxConnection={1} />
     </>
   );
 }
+
+export default MiscStatNode;

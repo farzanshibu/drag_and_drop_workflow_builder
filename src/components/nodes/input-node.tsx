@@ -19,7 +19,13 @@ import { ObjectStats } from "@/lib/utils";
 import { useTableDataStore } from "@/store/table";
 import { Sheet, X } from "lucide-react";
 import Papa from "papaparse";
-import { useRef, useState, type ChangeEventHandler } from "react";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ChangeEventHandler,
+} from "react";
 import { Position } from "reactflow";
 import { toast } from "sonner";
 import { useNodeDataStore } from "../../store/node-data";
@@ -33,13 +39,19 @@ export function InputFileNode({ id }: { id: string }) {
     getSingleData: state.getSingleData,
     setNodeData: state.setNodeData,
   }));
-  const [selectedFile, setSelectedFile] = useState<File>();
   const inputFile = useRef<HTMLInputElement>(null);
   const { handleRemoveBlock } = useNodeData(id);
 
+  const [selectedOption, setSelectedOption] = useState<File | undefined>();
+
   const handleFileRemove = () => {
-    setNodeData({ id, data_target: undefined, data_source: undefined });
-    setSelectedFile(undefined);
+    setSelectedOption(undefined);
+    setNodeData({
+      id,
+      data_target: undefined,
+      data_source: undefined,
+      field: { inputSelectedFile: undefined },
+    });
   };
 
   const handleFileOpen = () => {
@@ -48,39 +60,63 @@ export function InputFileNode({ id }: { id: string }) {
     }
   };
 
-  const handleFileChange: ChangeEventHandler<HTMLInputElement> = (event) => {
-    const file = event.target.files?.[0];
-    if (!file) {
-      toast.error("No file selected");
-      return;
-    }
-    if (file.type !== "application/json" && file.type !== "text/csv") {
-      toast.error("Invalid file type");
-      return;
-    }
-    if (file.size > 1024 * 1024 * 5) {
-      toast.error("File too large");
-      return;
-    }
-
-    setSelectedFile(file);
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const content = e.target?.result;
-      if (file.type === "application/json") {
-        const json = JSON.parse(content as string);
-        setNodeData({ id, data_target: json, data_source: file });
-      } else if (file.type === "text/csv") {
-        Papa.parse(content as string, {
-          header: true,
-          complete: (result) => {
-            setNodeData({ id, data_target: result.data, data_source: file });
-          },
-        });
+  const handleFileChange: ChangeEventHandler<HTMLInputElement> = useCallback(
+    (event) => {
+      const file = event.target.files?.[0];
+      if (!file) {
+        toast.error("No file selected");
+        return;
       }
-    };
-    reader.readAsText(file);
-  };
+      if (file.type !== "application/json" && file.type !== "text/csv") {
+        toast.error("Invalid file type");
+        return;
+      }
+      if (file.size > 1024 * 1024 * 5) {
+        toast.error("File too large");
+        return;
+      }
+      setSelectedOption(file);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target?.result;
+        if (file.type === "application/json") {
+          const json = JSON.parse(content as string);
+          setNodeData({
+            id,
+            data_target: json,
+            data_source: file,
+            field: { inputSelectedFile: file },
+          });
+        } else if (file.type === "text/csv") {
+          Papa.parse(content as string, {
+            header: true,
+            complete: (result) => {
+              setNodeData({
+                id,
+                data_target: result.data,
+                data_source: file,
+                field: { inputSelectedFile: file },
+              });
+            },
+          });
+        }
+      };
+      reader.readAsText(file);
+    },
+    [id, setNodeData]
+  );
+
+  useEffect(() => {
+    const initialSelectedFile = getSingleData(id)?.field?.inputSelectedFile;
+    setSelectedOption(initialSelectedFile);
+    if (initialSelectedFile) {
+      const dt = new DataTransfer();
+      dt.items.add(initialSelectedFile);
+      handleFileChange({
+        target: { files: dt.files },
+      } as React.ChangeEvent<HTMLInputElement>);
+    }
+  }, [id, getSingleData, handleFileChange]);
 
   return (
     <Card>
@@ -97,9 +133,9 @@ export function InputFileNode({ id }: { id: string }) {
       </CardHeader>
       <CardContent>
         <div className="w-full p-3" onClick={handleFileOpen}>
-          {selectedFile ? (
+          {selectedOption ? (
             <div className="flex justify-between p-3 border rounded-xl m-2 bg-black">
-              <p className="w-36 truncate">{selectedFile.name}</p>
+              <p className="w-36 truncate">{selectedOption.name}</p>
               <X color="red" onClick={handleFileRemove} />
             </div>
           ) : (
@@ -126,49 +162,69 @@ export function InputFileNode({ id }: { id: string }) {
           {ObjectStats(getSingleData(id)?.data_target)}
         </span>
       </CardFooter>
-      <CustomHandle type="source" position={Position.Right} />
+      <CustomHandle type="source" position={Position.Right} maxConnection={1} />
     </Card>
   );
 }
 
 export function InputExampleNode({ id }: { id: string }) {
+  const { handleRemoveBlock } = useNodeData(id);
   const setTableData = useTableDataStore((state) => state.setTableData);
   const { getSingleData, setNodeData } = useNodeDataStore((state) => ({
     getSingleData: state.getSingleData,
     setNodeData: state.setNodeData,
   }));
+  const [selectedOption, setSelectedOption] = useState<string | undefined>();
 
-  const [selectedOption, setSelectedOption] = useState("");
-  const { handleRemoveBlock } = useNodeData(id);
-
-  const handleChange = (value: string) => {
-    setSelectedOption(value);
-    if (value === "sample-json") {
-      // Open file in the public data.json and read the content and console.log it
-      fetch("/data.json")
-        .then((response) => response.json())
-        .then((data) =>
-          setNodeData({ id, data_target: data, data_source: value })
-        );
-    }
-    if (value === "sample-csv") {
-      // Open file in the public data.csv and read the content and console.log it
-      fetch("/data.csv")
-        .then((response) => response.text())
-        .then((data) => {
-          Papa.parse(data, {
-            header: true,
-            complete: (result) => {
-              setNodeData({
-                id,
-                data_target: result.data,
-                data_source: value,
-              });
-            },
+  const handleChange = useCallback(
+    (option: string) => {
+      if (option === "sample-json") {
+        fetch("/data.json")
+          .then((response) => response.json())
+          .then((data) =>
+            setNodeData({
+              id,
+              data_target: data,
+              data_source: option,
+              field: { exampleSelectedOption: option },
+            })
+          );
+      }
+      if (option === "sample-csv") {
+        fetch("/data.csv")
+          .then((response) => response.text())
+          .then((data) => {
+            Papa.parse(data, {
+              header: true,
+              complete: (result) => {
+                setNodeData({
+                  id,
+                  data_target: result.data,
+                  data_source: option,
+                  field: { exampleSelectedOption: option },
+                });
+              },
+            });
           });
-        });
+      }
+    },
+    [id, setNodeData]
+  );
+
+  useEffect(() => {
+    const initialSelectedOption =
+      getSingleData(id)?.field?.exampleSelectedOption;
+    setSelectedOption(initialSelectedOption);
+    if (initialSelectedOption) {
+      handleChange(initialSelectedOption);
     }
-  };
+  }, [id, getSingleData, handleChange]);
+
+  useEffect(() => {
+    if (selectedOption) {
+      handleChange(selectedOption);
+    }
+  }, [selectedOption, handleChange]);
 
   return (
     <>
@@ -187,7 +243,12 @@ export function InputExampleNode({ id }: { id: string }) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Select value={selectedOption} onValueChange={handleChange}>
+          <Select
+            value={selectedOption}
+            onValueChange={(cond) => {
+              setSelectedOption(cond);
+            }}
+          >
             <SelectTrigger className="w-52 mb-3">
               <SelectValue placeholder="Sample Data" />
             </SelectTrigger>
@@ -209,12 +270,14 @@ export function InputExampleNode({ id }: { id: string }) {
           >
             Delete
           </Button>
-          <span className="text-xs mt-2">
-            {ObjectStats(getSingleData(id)?.data_target)}
-          </span>
+          {selectedOption && (
+            <span className="text-xs mt-2">
+              {ObjectStats(getSingleData(id)?.data_target)}
+            </span>
+          )}
         </CardFooter>
       </Card>
-      <CustomHandle type="source" position={Position.Right} />
+      <CustomHandle type="source" position={Position.Right} maxConnection={1} />
     </>
   );
 }
