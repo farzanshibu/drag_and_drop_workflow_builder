@@ -26,6 +26,7 @@ import ScatterChart from "../charts/scatter-chart";
 import CustomHandle from "../global/custom-handle";
 import { Button } from "../ui/button";
 import { Separator } from "../ui/separator";
+import type { Datatype } from "@/types/types";
 
 export function VisualizationBarChartNode({
   data,
