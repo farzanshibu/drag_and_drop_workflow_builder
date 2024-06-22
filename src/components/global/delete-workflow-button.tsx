@@ -1,4 +1,5 @@
 "use client";
+import { deleteWorkflowAction } from "@/app/(dashboard)/dashboard/_actions/workflow-actions";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,6 +13,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { useWorkflowStore } from "@/store/workflows";
+import { useQueryClient } from "@tanstack/react-query";
 import { Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -23,6 +25,27 @@ type Props = {
 export default function DeleteWorkFlowButton({ workflowId }: Props) {
   const deleteWorkFlow = useWorkflowStore((state) => state.deleteWorkFlow);
   const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const deleteAction = async (workflowId: string) => {
+    try {
+      const res = await deleteWorkflowAction(workflowId);
+      if (res.status === "success") {
+        deleteWorkFlow(workflowId);
+        queryClient.invalidateQueries({ queryKey: ["workflows"] });
+        toast.success("Workflow Deleted");
+        router.push("/dashboard");
+      } else {
+        throw new Error(
+          res.message || "An error occurred while deleting workflow"
+        );
+      }
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "An unexpected error occurred"
+      );
+    }
+  };
 
   return (
     <AlertDialog>
@@ -44,11 +67,7 @@ export default function DeleteWorkFlowButton({ workflowId }: Props) {
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction asChild>
             <Button
-              onClick={() => {
-                deleteWorkFlow(workflowId);
-                toast.success("WorkFlow Deleted");
-                router.push("/dashboard");
-              }}
+              onClick={() => deleteAction(workflowId)}
               className="text-red-400 bg-red-500/20 border border-red-500 hover:bg-red-700 hover:text-white"
             >
               Delete

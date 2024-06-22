@@ -1,7 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-
 import { Button } from "@/components/ui/button";
 import { DialogClose, DialogFooter } from "@/components/ui/dialog";
 import {
@@ -13,11 +9,23 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useWorkflowStore } from "@/store/workflows";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useQueryClient } from "@tanstack/react-query";
+import { LucideLoader } from "lucide-react";
+import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import { z } from "zod";
+import { createWorkflowAction } from "../_actions/workflow-actions";
 
-export const formSchema = z.object({
+const formSchema = z.object({
+  workflowId: z
+    .string()
+    .uuid()
+    .default(() => crypto.randomUUID()),
   workflowName: z.string().min(4).max(24),
+  workflowDescription: z.string().min(4),
 });
 type Props = {
   onOpenChange: (open: boolean) => void;
@@ -29,12 +37,27 @@ export default function CreateForm({ onOpenChange }: Props) {
     resolver: zodResolver(formSchema),
   });
 
-  //TODO: server action to create a new workflow
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    createWorkFlow(values.workflowName);
-    toast.success("WorkFlow Created");
+  const { formState } = form;
+  const { isSubmitting } = formState;
+  const queryClient = useQueryClient();
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    let newWorkflow = await createWorkflowAction(values);
+    if (newWorkflow.status === "error") {
+      return toast.error(newWorkflow.message);
+    }
+    queryClient.invalidateQueries({ queryKey: ["workflows"] });
+    toast.success(newWorkflow.message);
+    let data = {
+      workflowId: newWorkflow.workflow!.id,
+      workflowName: newWorkflow.workflow!.name,
+      workflowDescription: newWorkflow.workflow!.description,
+      workflowUpdated: newWorkflow.workflow!.last_updated,
+      clerkId: newWorkflow.workflow!.clerkid,
+    };
+    createWorkFlow(data);
+
     onOpenChange(false);
-    console.log(values);
   }
   return (
     <Form {...form}>
@@ -44,9 +67,26 @@ export default function CreateForm({ onOpenChange }: Props) {
           name="workflowName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>WorkFlow</FormLabel>
+              <FormLabel>WorkFlow Name</FormLabel>
               <FormControl>
                 <Input placeholder="WorkFlow Name" type="text" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="workflowDescription"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>WorkFlow Description</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="WorkFlow Description"
+                  className="resize-none"
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -61,9 +101,14 @@ export default function CreateForm({ onOpenChange }: Props) {
           </DialogClose>
           <Button
             type="submit"
+            disabled={isSubmitting}
             className="text-lime-400 bg-lime-500/20 border border-lime-500 hover:bg-lime-700 hover:text-white"
           >
-            Create
+            {isSubmitting ? (
+              <LucideLoader size={24} color="lime" className="animate-spin" />
+            ) : (
+              "Create"
+            )}
           </Button>
         </DialogFooter>
       </form>

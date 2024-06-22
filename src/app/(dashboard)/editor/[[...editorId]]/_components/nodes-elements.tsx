@@ -1,20 +1,11 @@
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { NodesTypes } from "@/lib/constants";
+import type { AddBlockProps } from "@/types/types";
 import { useState } from "react";
 import { useReactFlow } from "reactflow";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from "uuid";
-
-type AddBlockProps = {
-  id: number;
-  name: string;
-  description: string;
-  input: null | string;
-  output: null | string;
-  type: string;
-  data: {};
-};
 
 export default function NodesElement() {
   const { setNodes } = useReactFlow();

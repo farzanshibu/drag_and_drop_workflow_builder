@@ -5,6 +5,7 @@
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
+    "target": "ES2020",
     "forceConsistentCasingInFileNames": true,
     "esModuleInterop": true,
     "module": "esnext",

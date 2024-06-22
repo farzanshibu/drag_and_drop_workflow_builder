@@ -14,18 +14,21 @@ import { useOptimistic, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
-import { updateWorkflowNameAction } from "../_actions/workflow-action";
+import { updateWorkflowDescriptionAction } from "../_actions/workflow-action";
 
 type Props = {
   filename: string;
   workflowId: string;
 };
 
-const formSchema = z.object({ workflowName: z.string().min(4).max(24) });
+const formSchema = z.object({ workflowDescription: z.string().min(4) });
 
-export default function NameEditorInput({ filename, workflowId }: Props) {
-  const { upadateSingleWorkFlowName } = useWorkflowStore((state) => ({
-    upadateSingleWorkFlowName: state.upadateSingleWorkFlowName,
+export default function DescriptionEditorInput({
+  filename,
+  workflowId,
+}: Props) {
+  const { upadateSingleWorkFlowDescription } = useWorkflowStore((state) => ({
+    upadateSingleWorkFlowDescription: state.upadateSingleWorkFlowDescription,
   }));
 
   const [fileNameOpt, addOptFileName] = useOptimistic(
@@ -42,21 +45,24 @@ export default function NameEditorInput({ filename, workflowId }: Props) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      workflowName: fileNameOpt,
+      workflowDescription: fileNameOpt,
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    addOptFileName(values.workflowName);
+    addOptFileName(values.workflowDescription);
     setIsEditing(false);
-    const res = await updateWorkflowNameAction(workflowId, values.workflowName);
+    const res = await updateWorkflowDescriptionAction(
+      workflowId,
+      values.workflowDescription
+    );
     if (res.status === "error") {
       console.error(res.error);
       toast.error(res.message);
     }
     if (res.status === "success") {
       toast.success(res.message);
-      upadateSingleWorkFlowName(workflowId, values.workflowName);
+      upadateSingleWorkFlowDescription(workflowId, values.workflowDescription);
     }
   };
 
@@ -65,7 +71,7 @@ export default function NameEditorInput({ filename, workflowId }: Props) {
       <form onSubmit={form.handleSubmit(onSubmit)} className="flex">
         <FormField
           control={form.control}
-          name="workflowName"
+          name="workflowDescription"
           render={({ field }) => (
             <FormItem>
               <FormControl>

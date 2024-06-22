@@ -1,3 +1,4 @@
+import type { NodeData } from "@/types/types";
 import { produce } from "immer";
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
@@ -12,42 +13,6 @@ type Storetype = {
   setNodesData: (data: NodeData[]) => void;
 };
 
-type NodeData = {
-  id: string;
-  data_target: any | undefined;
-  data_source: any | undefined;
-  field?: FieldTypes;
-};
-
-interface statData {
-  sum: number;
-  mean: number;
-  min: number;
-  max: number;
-  median: number;
-  mode: string;
-  modeCount: any;
-  variance: number;
-  stdDev: number;
-}
-
-type FieldTypes = {
-  inputSelectedFile?: File | undefined;
-  exampleSelectedOption?: string | undefined;
-  transformSelectedOption?: string | undefined;
-  transformSelectedCondition?: string | undefined;
-  transformSelectedGroup?: string | undefined;
-  transformIndexStart?: number | undefined;
-  transformIndexEnd?: number | undefined;
-  transformSortConditions?: string | undefined;
-  transformColumnName?: string | undefined;
-  transformColumnName2?: string | undefined;
-  chartColumnName?: string | undefined;
-  chartColumnName2?: string | undefined;
-  miscSelectedColumn?: string | undefined;
-  miscStatData?: statData | undefined;
-  micsMarkupShow?: boolean | undefined;
-};
 export const useNodeDataStore = create<Storetype>()(
   devtools(
     immer((set, get) => ({

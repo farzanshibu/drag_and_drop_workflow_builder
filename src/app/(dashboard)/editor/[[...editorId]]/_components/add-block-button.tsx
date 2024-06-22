@@ -9,9 +9,8 @@ import {
 } from "@/components/ui/sheet";
 import { Plus } from "lucide-react";
 import NodesElement from "./nodes-elements";
-type Props = {};
 
-export default function AddBlockButton({}: Props) {
+export default function AddBlockButton() {
   return (
     <Sheet>
       <SheetTrigger asChild>

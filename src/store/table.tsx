@@ -1,3 +1,4 @@
+import { produce } from "immer";
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 
@@ -10,8 +11,10 @@ export const useTableDataStore = create<Storetype>()(
   immer((set) => ({
     tableData: [],
     setTableData: (newData) =>
-      set((state) => ({
-        tableData: newData,
-      })),
+      set(
+        produce((state: Storetype) => ({
+          tableData: newData,
+        }))
+      ),
   }))
 );

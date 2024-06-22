@@ -16,6 +16,7 @@ import {
 import useNodeData from "@/hooks/useNodeData";
 import { splitEdgeToNodes } from "@/lib/utils";
 import { useNodeDataStore } from "@/store/node-data";
+import type { Datatype, StatData } from "@/types/types";
 import { useCallback, useEffect, useState } from "react";
 import Markdown from "react-markdown";
 import { Position } from "reactflow";
@@ -23,17 +24,6 @@ import { toast } from "sonner";
 import CustomHandle from "../global/custom-handle";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
-
-interface statData {
-  sum: number;
-  mean: number;
-  min: number;
-  max: number;
-  median: number;
-  mode: number;
-  variance: number;
-  stdDev: number;
-}
 
 export function MiscMarkdownNode({ id }: { id: string }) {
   const { handleRemoveBlock } = useNodeData(id);
@@ -207,7 +197,7 @@ export function MiscStatNode({ data, id }: { data: Datatype; id: string }) {
   }));
 
   const [selectedColumn, setSelectedColumn] = useState<string | undefined>();
-  const [statData, setStatData] = useState<statData | undefined>();
+  const [statData, setStatData] = useState<StatData | undefined>();
 
   const handleStat = useCallback(
     (selectedColumn: string) => {
@@ -251,7 +241,7 @@ export function MiscStatNode({ data, id }: { data: Datatype; id: string }) {
         columnData.length;
       const stdDev = Math.sqrt(variance);
 
-      const newStatData: statData = {
+      const newStatData: StatData = {
         sum,
         mean,
         min,

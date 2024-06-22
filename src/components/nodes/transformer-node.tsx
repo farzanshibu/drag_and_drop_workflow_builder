@@ -19,6 +19,7 @@ import useNodeData from "@/hooks/useNodeData";
 import { ObjectStats, splitEdgeToNodes } from "@/lib/utils";
 import { useNodeDataStore } from "@/store/node-data";
 import { useTableDataStore } from "@/store/table";
+import type { Datatype } from "@/types/types";
 import { Sheet } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Position } from "reactflow";

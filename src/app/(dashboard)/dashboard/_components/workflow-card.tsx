@@ -13,12 +13,14 @@ import Link from "next/link";
 type Props = {
   workflowName: string;
   workflowId: string;
+  workflowDescription: string;
   lastUpdated: string;
 };
 
 export default function WorkFlowCard({
   workflowName,
   workflowId,
+  workflowDescription,
   lastUpdated,
 }: Props) {
   return (
@@ -28,12 +30,13 @@ export default function WorkFlowCard({
           {workflowName.toLowerCase()}
         </CardTitle>
         <CardDescription className="italic">{workflowId}</CardDescription>
+        <CardDescription>{workflowDescription}</CardDescription>
       </CardHeader>
       <CardFooter>
         <div className="flex w-full lg:items-center justify-between flex-col lg:flex-row">
-          <p className="text-slate-400 text-xs flex gap-2">
+          <p className=" text-xs flex gap-2">
             <RefreshCcw size={16} />
-            <span className="font-medium text-slate-200">
+            <span className="font-mediu">
               {new Intl.DateTimeFormat("en-US", {
                 year: "numeric",
                 month: "long",

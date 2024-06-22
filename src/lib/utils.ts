@@ -1,3 +1,4 @@
+import type { WorkFlow } from "@/types/types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -41,3 +42,44 @@ export function splitEdgeToNodes(edgeIds: string[], currentNodeId: string) {
     targetIdB: targetIds.length > 1 ? targetIds[1] : null,
   };
 }
+
+export const parseWorkflows = (workflows: any): WorkFlow[] => {
+  if (!workflows) {
+    return [];
+  }
+
+  // If workflows is already an array, map over it
+  if (Array.isArray(workflows)) {
+    return workflows.map((workflow) => ({
+      ...workflow,
+      nodes: parseJsonField(workflow.nodes),
+      edges: parseJsonField(workflow.edges),
+      nodeDataArr: parseJsonField(workflow.nodeDataArr),
+    }));
+  }
+
+  // If workflows is an object (possibly from localStorage), convert it to an array
+  if (typeof workflows === 'object' && workflows !== null) {
+    return Object.values(workflows).map((workflow: any) => ({
+      ...workflow,
+      nodes: parseJsonField(workflow.nodes),
+      edges: parseJsonField(workflow.edges),
+      nodeDataArr: parseJsonField(workflow.nodeDataArr),
+    }));
+  }
+
+  // If workflows is neither an array nor an object, return an empty array
+  console.error('Unexpected workflows data structure:', workflows);
+  return [];
+};
+
+const parseJsonField = (field: string | null | undefined): any[] => {
+  if (!field) return [];
+  try {
+    return JSON.parse(field);
+  } catch (error) {
+    console.error('Error parsing JSON field:', error);
+    return [];
+  }
+};
+

@@ -14,16 +14,9 @@ import { useEffect, useState } from "react";
 import { useReactFlow } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
 import { Button } from "../ui/button";
+import type { AddBlockProps } from "@/types/types";
 
-type AddBlockProps = {
-  id: number;
-  name: string;
-  description: string;
-  input: null | string;
-  output: null | string;
-  type: string;
-  data: {};
-};
+
 
 export function CommandDialogBlock() {
   const { setNodes } = useReactFlow();
@@ -42,7 +35,6 @@ export function CommandDialogBlock() {
   }, []);
 
   const handleAddBlock = (element: AddBlockProps) => () => {
-    console.log("Add block");
     setNodes((nodes) => [
       ...nodes,
       {
