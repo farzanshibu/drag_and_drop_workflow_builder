@@ -8,6 +8,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { dark } from "@clerk/themes";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
+import NextTopLoader from "nextjs-toploader";
 const poppins = Poppins({ weight: "400", subsets: ["latin"] });
 
 export const metadata: Metadata = {
@@ -36,6 +37,7 @@ export default function RootLayout({
               disableTransitionOnChange
             >
               <ReactQueryProvider>
+                <NextTopLoader showSpinner={false} />
                 <Hydration />
                 {children}
                 <Toaster position="top-center" richColors />

@@ -45,8 +45,8 @@ export function TransformRenameNode({
     setNodeData: state.setNodeData,
   }));
 
-  const [selectedColumn, setSelectedColumn] = useState<string>();
-  const [newColumnName, setNewColumnName] = useState<string>();
+  const [selectedColumn, setSelectedColumn] = useState<string>("");
+  const [newColumnName, setNewColumnName] = useState<string>("");
 
   const renameData = useCallback(
     (selectedColumn: string | undefined, newColumnName: string | undefined) => {
@@ -63,7 +63,6 @@ export function TransformRenameNode({
       const dataToRename = [...lastNodeDataTarget];
       const updatedData = dataToRename.map((row) => {
         if (selectedColumn in row) {
-          // Create a new object with the updated properties
           return {
             ...row,
             [newColumnName]: row[selectedColumn],
@@ -72,7 +71,6 @@ export function TransformRenameNode({
         }
         return row;
       });
-      // Delete the old column after updating the Zustand store
       const finalData = updatedData.map((row) => {
         const { [selectedColumn]: _, ...rest } = row;
         return rest;
@@ -92,18 +90,14 @@ export function TransformRenameNode({
     },
     [lastNodeDataTarget, setNodeData, getSingleData, id]
   );
+
   useEffect(() => {
     const singleData = getSingleData(id)?.field;
-    const initialColumnName = singleData?.transformColumnName;
-    const initialSelectedOption = singleData?.transformSelectedOption;
-
-    setNewColumnName(initialColumnName);
-    setSelectedColumn(initialSelectedOption);
-
-    if (initialColumnName && initialSelectedOption) {
-      renameData(initialColumnName, initialSelectedOption);
+    if (singleData) {
+      setNewColumnName(singleData.transformColumnName || "");
+      setSelectedColumn(singleData.transformSelectedOption || "");
     }
-  }, [id, getSingleData, renameData]);
+  }, [id, getSingleData]);
 
   return (
     <>
@@ -146,6 +140,7 @@ export function TransformRenameNode({
               <Input
                 placeholder="New Column Name"
                 className="w-52"
+                value={newColumnName}
                 onChange={(e) => {
                   setNewColumnName(e.target.value);
                 }}
@@ -196,9 +191,9 @@ export function TransformFilterNode({
     setNodeData: state.setNodeData,
   }));
 
-  const [selectedColumn, setSelectedColumn] = useState<string>();
-  const [selectedCondition, setSelectedCondition] = useState<string>();
-  const [conditionData, setConditionData] = useState<string>();
+  const [selectedColumn, setSelectedColumn] = useState<string>("");
+  const [selectedCondition, setSelectedCondition] = useState<string>("");
+  const [conditionData, setConditionData] = useState<string>("");
 
   const filterData = useCallback(
     (
@@ -268,26 +263,12 @@ export function TransformFilterNode({
 
   useEffect(() => {
     const singleData = getSingleData(id)?.field;
-    const initialSelectedOption = singleData?.transformSelectedOption;
-    const initialSelectedCondition = singleData?.transformSelectedCondition;
-    const initialColumnName = singleData?.transformColumnName;
-
-    setSelectedColumn(initialColumnName);
-    setSelectedCondition(initialSelectedCondition);
-    setConditionData(initialSelectedOption);
-
-    if (
-      initialSelectedOption &&
-      initialSelectedCondition &&
-      initialColumnName
-    ) {
-      filterData(
-        initialSelectedOption,
-        initialSelectedCondition,
-        initialColumnName
-      );
+    if (singleData) {
+      setSelectedColumn(singleData.transformColumnName || "");
+      setSelectedCondition(singleData.transformSelectedCondition || "");
+      setConditionData(singleData.transformSelectedOption || "");
     }
-  }, [id, getSingleData, filterData]);
+  }, [id, getSingleData]);
 
   return (
     <>

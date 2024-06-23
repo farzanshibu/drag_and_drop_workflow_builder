@@ -19,13 +19,7 @@ import { ObjectStats } from "@/lib/utils";
 import { useTableDataStore } from "@/store/table";
 import { Sheet, X } from "lucide-react";
 import Papa from "papaparse";
-import {
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-  type ChangeEventHandler,
-} from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Position } from "reactflow";
 import { toast } from "sonner";
 import { useNodeDataStore } from "../../store/node-data";
@@ -60,61 +54,68 @@ export function InputFileNode({ id }: { id: string }) {
     }
   };
 
-  const handleFileChange: ChangeEventHandler<HTMLInputElement> = useCallback(
-    (event) => {
-      const file = event.target.files?.[0];
-      if (!file) {
-        toast.error("No file selected");
-        return;
-      }
-      if (file.type !== "application/json" && file.type !== "text/csv") {
-        toast.error("Invalid file type");
-        return;
-      }
-      if (file.size > 1024 * 1024 * 5) {
-        toast.error("File too large");
-        return;
-      }
-      setSelectedOption(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const content = e.target?.result;
-        if (file.type === "application/json") {
-          const json = JSON.parse(content as string);
-          setNodeData({
-            id,
-            data_target: json,
-            data_source: file,
-            field: { inputSelectedFile: file },
-          });
-        } else if (file.type === "text/csv") {
-          Papa.parse(content as string, {
-            header: true,
-            complete: (result) => {
-              setNodeData({
-                id,
-                data_target: result.data,
-                data_source: file,
-                field: { inputSelectedFile: file },
-              });
-            },
-          });
+  const handleFileChange: React.ChangeEventHandler<HTMLInputElement> =
+    useCallback(
+      (event) => {
+        const file = event.target.files?.[0];
+        if (!file) {
+          toast.error("No file selected");
+          return;
         }
-      };
-      reader.readAsText(file);
-    },
-    [id, setNodeData]
-  );
+        if (file.type !== "application/json" && file.type !== "text/csv") {
+          toast.error("Invalid file type");
+          return;
+        }
+        if (file.size > 1024 * 1024 * 5) {
+          toast.error("File too large");
+          return;
+        }
+        setSelectedOption(file);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const content = e.target?.result;
+          if (file.type === "application/json") {
+            const json = JSON.parse(content as string);
+            setNodeData({
+              id,
+              data_target: json,
+              data_source: file,
+              field: { inputSelectedFile: file },
+            });
+          } else if (file.type === "text/csv") {
+            Papa.parse(content as string, {
+              header: true,
+              complete: (result) => {
+                setNodeData({
+                  id,
+                  data_target: result.data,
+                  data_source: file,
+                  field: { inputSelectedFile: file },
+                });
+              },
+            });
+          }
+        };
+        reader.readAsText(file);
+      },
+      [id, setNodeData]
+    );
 
   useEffect(() => {
     const initialSelectedFile = getSingleData(id)?.field?.inputSelectedFile;
-    setSelectedOption(initialSelectedFile);
     if (initialSelectedFile) {
       const dt = new DataTransfer();
-      dt.items.add(initialSelectedFile);
+      const blob = new Blob([initialSelectedFile], {
+        type: initialSelectedFile.type,
+      });
+      const file = new File([blob], initialSelectedFile.name, {
+        type: initialSelectedFile.type,
+      });
+      dt.items.add(file);
       handleFileChange({
-        target: { files: dt.files },
+        target: { files: dt.files } as HTMLInputElement,
       } as React.ChangeEvent<HTMLInputElement>);
+      setSelectedOption(file);
     }
   }, [id, getSingleData, handleFileChange]);
 
